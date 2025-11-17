@@ -37,6 +37,10 @@ abstract class S3Upload extends AbstractS3Task {
 
     @Optional
     @Input
+    ACL acl = ACL.Private
+
+    @Optional
+    @Input
     String getSourceDir() {
         return source
     }
@@ -80,6 +84,7 @@ abstract class S3Upload extends AbstractS3Task {
                 .source(sourceDirectory.canonicalFile.toPath())
                 .bucket(taskBucket)
                 .s3Prefix(keyPrefix)
+                .putObjectRequest(b -> b.acl(acl.toString()))
                 .build()
 
             DirectoryUpload upload = manager.uploadDirectory(request)
@@ -127,7 +132,7 @@ abstract class S3Upload extends AbstractS3Task {
 
             UploadFileRequest request = UploadFileRequest.builder()
                 .source(f.canonicalFile.toPath())
-                .putObjectRequest(b -> b.bucket(taskBucket).key(key).contentType(contentType))
+                .putObjectRequest(b -> b.bucket(taskBucket).key(key).contentType(contentType).acl(acl.toString()))
                 .addTransferListener(new S3Listener(logger, transferListener))
                 .build()
 
